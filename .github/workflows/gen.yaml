@@ -10,6 +10,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: install go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache: false
+
       - name: installing deps
         run: |
           sudo apt install -y protobuf-compiler
