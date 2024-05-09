@@ -12,11 +12,11 @@ jobs:
 
       - name: install protoc
         run: |
-          apt install -y protobuf-compiler
+          sudo apt install -y protobuf-compiler
 
       - name: install sqlc
         run: |
-          snap install sqlc
+          sudo snap install sqlc
 
       - name: gen
         run: |
