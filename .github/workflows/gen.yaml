@@ -1,0 +1,27 @@
+name: Codegen Test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  Codegen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: gen
+        run: |
+          make gen
+
+      - name: test diff
+        uses: tj-actions/verify-changed-files@v14
+        id: test-diff
+        with:
+          files: |
+            ./internal/**/*.go
+
+      - if: steps.test-diff.outputs.files_changed == 'true'
+        run: |
+          echo "Run 'make gen' to fix!"
+          exit 1
