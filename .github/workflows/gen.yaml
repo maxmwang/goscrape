@@ -10,6 +10,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: install protoc
+        uses: arduino/setup-protoc@v3
+
+      - name: install sqlc
+        uses: sqlc-dev/setup-sqlc@v4
+        with:
+          sqlc-version: '1.26.0'
+
       - name: gen
         run: |
           make gen
