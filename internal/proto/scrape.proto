@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option go_package = "./internal/proto";
+
+service Scraper {
+  rpc Try(TryRequest) returns (TryReply) {}
+}
+
+message TryRequest {
+  string company = 1;
+}
+
+message TryReply {
+  string site = 1;
+  uint32 count = 2;
+}
