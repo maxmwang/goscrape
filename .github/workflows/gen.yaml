@@ -17,6 +17,7 @@ jobs:
           cache: false
 
       - name: installing deps
+        id: install
         run: |
           sudo apt install -y protobuf-compiler
           sudo snap install sqlc
@@ -24,10 +25,13 @@ jobs:
           go get google.golang.org/grpc/cmd/protoc-gen-go-grpc
 
       - name: gen
+        if: steps.install.outcome == 'success'
+        id: gen
         run: |
           make gen
 
       - name: test diff
+        if: steps.gen.outcome == 'success'
         uses: tj-actions/verify-changed-files@v14
         id: test-diff
         with:
