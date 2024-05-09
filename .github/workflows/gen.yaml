@@ -11,12 +11,12 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: install protoc
-        uses: arduino/setup-protoc@v3
+        run: |
+          apt install -y protobuf-compiler
 
       - name: install sqlc
-        uses: sqlc-dev/setup-sqlc@v4
-        with:
-          sqlc-version: '1.26.0'
+        run: |
+          snap install sqlc
 
       - name: gen
         run: |
