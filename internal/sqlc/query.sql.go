@@ -27,13 +27,42 @@ func (q *Queries) AddCompany(ctx context.Context, arg AddCompanyParams) error {
 	return err
 }
 
-const getCompanies = `-- name: GetCompanies :many
+const getCompany = `-- name: GetCompany :many
+SELECT name, site FROM companies
+WHERE name = ?
+ORDER BY site
+`
+
+func (q *Queries) GetCompany(ctx context.Context, name string) ([]Company, error) {
+	rows, err := q.db.QueryContext(ctx, getCompany, name)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Company
+	for rows.Next() {
+		var i Company
+		if err := rows.Scan(&i.Name, &i.Site); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listCompanies = `-- name: ListCompanies :many
 SELECT name, site FROM companies
 ORDER BY site
 `
 
-func (q *Queries) GetCompanies(ctx context.Context) ([]Company, error) {
-	rows, err := q.db.QueryContext(ctx, getCompanies)
+func (q *Queries) ListCompanies(ctx context.Context) ([]Company, error) {
+	rows, err := q.db.QueryContext(ctx, listCompanies)
 	if err != nil {
 		return nil, err
 	}

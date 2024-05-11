@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ScraperClient interface {
 	Try(ctx context.Context, in *TryRequest, opts ...grpc.CallOption) (*TryReply, error)
+	TryThenAdd(ctx context.Context, in *TryRequest, opts ...grpc.CallOption) (*TryThenAddReply, error)
 }
 
 type scraperClient struct {
@@ -42,11 +43,21 @@ func (c *scraperClient) Try(ctx context.Context, in *TryRequest, opts ...grpc.Ca
 	return out, nil
 }
 
+func (c *scraperClient) TryThenAdd(ctx context.Context, in *TryRequest, opts ...grpc.CallOption) (*TryThenAddReply, error) {
+	out := new(TryThenAddReply)
+	err := c.cc.Invoke(ctx, "/Scraper/TryThenAdd", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ScraperServer is the server API for Scraper service.
 // All implementations must embed UnimplementedScraperServer
 // for forward compatibility
 type ScraperServer interface {
 	Try(context.Context, *TryRequest) (*TryReply, error)
+	TryThenAdd(context.Context, *TryRequest) (*TryThenAddReply, error)
 	mustEmbedUnimplementedScraperServer()
 }
 
@@ -56,6 +67,9 @@ type UnimplementedScraperServer struct {
 
 func (UnimplementedScraperServer) Try(context.Context, *TryRequest) (*TryReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Try not implemented")
+}
+func (UnimplementedScraperServer) TryThenAdd(context.Context, *TryRequest) (*TryThenAddReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TryThenAdd not implemented")
 }
 func (UnimplementedScraperServer) mustEmbedUnimplementedScraperServer() {}
 
@@ -88,6 +102,24 @@ func _Scraper_Try_Handler(srv interface{}, ctx context.Context, dec func(interfa
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Scraper_TryThenAdd_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ScraperServer).TryThenAdd(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Scraper/TryThenAdd",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ScraperServer).TryThenAdd(ctx, req.(*TryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Scraper_ServiceDesc is the grpc.ServiceDesc for Scraper service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -98,6 +130,10 @@ var Scraper_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Try",
 			Handler:    _Scraper_Try_Handler,
+		},
+		{
+			MethodName: "TryThenAdd",
+			Handler:    _Scraper_TryThenAdd_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

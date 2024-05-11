@@ -4,6 +4,7 @@ option go_package = "./internal/proto";
 
 service Scraper {
   rpc Try(TryRequest) returns (TryReply) {}
+  rpc TryThenAdd(TryRequest) returns (TryThenAddReply) {}
 }
 
 message TryRequest {
@@ -13,4 +14,14 @@ message TryRequest {
 message TryReply {
   string site = 1;
   uint32 count = 2;
+  uint32 target = 3;
+  bool exists = 4;
+}
+
+message TryThenAddReply {
+  string site = 1;
+  uint32 count = 2;
+  uint32 target = 3;
+  bool exists = 4;
+  bool added = 5;
 }

@@ -22,7 +22,7 @@ func (j Job) String() string {
 	}
 }
 
-func (j Job) isTarget() bool {
+func (j Job) IsTarget() bool {
 	if strings.Index(j.title, "Intern") == strings.Index(j.title, "Internal") && strings.Count(j.title, "Intern") == 1 {
 		return false
 	}
@@ -30,6 +30,9 @@ func (j Job) isTarget() bool {
 		return false
 	}
 	if strings.Contains(j.title, "Software") && strings.Contains(j.title, "Intern") {
+		return true
+	}
+	if strings.Contains(j.title, "Platform") && strings.Contains(j.title, "Intern") {
 		return true
 	}
 

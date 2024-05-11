@@ -18,7 +18,7 @@ func SortThenPrint(c <-chan Job) {
 	})
 
 	for _, j := range jobs {
-		if j.isTarget() {
+		if j.IsTarget() {
 			fmt.Println(j)
 		}
 	}
@@ -26,7 +26,7 @@ func SortThenPrint(c <-chan Job) {
 
 func Print(c <-chan Job) {
 	for j := range c {
-		if j.isTarget() {
+		if j.IsTarget() {
 			fmt.Println(j)
 		}
 	}

@@ -5,12 +5,18 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
+	"net"
 	"os"
 	"path/filepath"
 	"sync"
+	"time"
 
+	"github.com/maxmwang/goscrape/internal/proto"
 	"github.com/maxmwang/goscrape/internal/scrape"
+	"github.com/maxmwang/goscrape/internal/server"
 	"github.com/maxmwang/goscrape/internal/sqlc"
+	"golang.org/x/time/rate"
+	"google.golang.org/grpc"
 )
 
 func main() {
@@ -21,17 +27,45 @@ func main() {
 	q := sqlc.New(db)
 
 	wg := sync.WaitGroup{}
+
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		scrapeDaemon(q, true)
 	}()
 
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		s := server.New(q)
+
+		lis, err := net.Listen("tcp", "localhost:5001")
+		if err != nil {
+			panic(err)
+		}
+		grpcServer := grpc.NewServer()
+		proto.RegisterScraperServer(grpcServer, s)
+		grpcServer.Serve(lis)
+	}()
+
 	wg.Wait()
 }
 
 func scrapeDaemon(q *sqlc.Queries, sort bool) {
-	companies, err := q.GetCompanies(context.Background())
+	r := rate.NewLimiter(rate.Every(30*time.Minute), 1)
+	for {
+		if err := r.Wait(context.Background()); err != nil {
+			panic(err)
+		}
+
+		fmt.Printf("[%s] scraping\n", time.Now().Format(time.TimeOnly))
+		scrapeOnce(q, sort)
+	}
+}
+
+func scrapeOnce(q *sqlc.Queries, sort bool) {
+	companies, err := q.ListCompanies(context.Background())
 	if err != nil {
 		panic(err)
 	}

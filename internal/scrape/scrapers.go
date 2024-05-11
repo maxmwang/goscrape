@@ -39,6 +39,25 @@ func Scrape(company sqlc.Company) (jobs []Job, err error) {
 	return jobs, nil
 }
 
+func ScrapeAll(company string) (site string, jobs []Job, err error) {
+	jobs, err = scrapeGreenhouse(company)
+	if err == nil && len(jobs) > 0 {
+		return string(siteGreenhouse), jobs, err
+	}
+
+	jobs, err = scrapeAshby(company)
+	if err == nil && len(jobs) > 0 {
+		return string(siteAshby), jobs, err
+	}
+
+	jobs, err = scrapeLever(company)
+	if err == nil && len(jobs) > 0 {
+		return string(siteLever), jobs, err
+	}
+
+	return "", nil, fmt.Errorf("no jobs found")
+}
+
 func scrapeGreenhouse(company string) (jobs []Job, err error) {
 	res, err := http.Get(fmt.Sprintf("https://api.greenhouse.io/v1/boards/%s/jobs", company))
 

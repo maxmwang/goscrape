@@ -1,4 +1,9 @@
--- name: GetCompanies :many
+-- name: GetCompany :many
+SELECT * FROM companies
+WHERE name = ?
+ORDER BY site;
+
+-- name: ListCompanies :many
 SELECT * FROM companies
 ORDER BY site;
 
