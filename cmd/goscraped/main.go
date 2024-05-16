@@ -31,28 +31,31 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		scrapeDaemon(q, true)
+		startDaemon(q, true)
 	}()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-
-		s := server.New(q)
-
-		lis, err := net.Listen("tcp", "localhost:5001")
-		if err != nil {
-			panic(err)
-		}
-		grpcServer := grpc.NewServer()
-		proto.RegisterScraperServer(grpcServer, s)
-		grpcServer.Serve(lis)
+		startServer(q)
 	}()
 
 	wg.Wait()
 }
 
-func scrapeDaemon(q *sqlc.Queries, sort bool) {
+func startServer(q *sqlc.Queries) {
+	s := server.New(q)
+
+	lis, err := net.Listen("tcp", "localhost:5001")
+	if err != nil {
+		panic(err)
+	}
+	grpcServer := grpc.NewServer()
+	proto.RegisterScraperServer(grpcServer, s)
+	grpcServer.Serve(lis)
+}
+
+func startDaemon(q *sqlc.Queries, sort bool) {
 	r := rate.NewLimiter(rate.Every(30*time.Minute), 1)
 	for {
 		if err := r.Wait(context.Background()); err != nil {
