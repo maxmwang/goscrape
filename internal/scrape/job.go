@@ -36,5 +36,9 @@ func (j Job) IsTarget() bool {
 		return true
 	}
 
+	// if strings.Contains(j.title, "Data") && strings.Contains(j.title, "Intern") {
+	// 	return true
+	// }
+
 	return false
 }
